@@ -1,0 +1,156 @@
+<head>
+    <script src="../mindtalking/public/scripts/jquery.min.js"></script>
+    <script src="../mindtalking/public/scripts/plotly.min.js"></script>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script src="../mindtalking/data.js"></script>
+    
+    <script>
+
+           
+
+            function buildChart(dataAsset){
+                var traceTemp = {
+                    x: [],
+                    y: [],
+                    mode: 'lines+markers',
+                    name: 'Temperatura'
+                }; 
+
+                var traceHumidity = {
+                    x: [],
+                    y: [],
+                    mode: 'lines+markers',
+                    name: 'Humidade'
+                }; 
+
+                var trace_Engine_Rotation = {
+                    x: [],
+                    y: [],
+                    mode: 'lines+markers',
+                    name: 'Rotação do Motor'
+                }; 
+
+                var trace_Pressure = {
+                    x: [],
+                    y: [],
+                    mode: 'lines+markers',
+                    name: 'Pressão'
+                }; 
+
+                var trace_StatusCode = {
+                    x: [],
+                    y: [],
+                    mode: 'lines+markers', 
+                    name: 'Status Code'
+                }; 
+
+                for (var key in dataAsset) {
+                    
+                    if (Object.keys(dataAsset[key])[0] == 'Temperature'){
+                        traceTemp.x.push(dataAsset[key]._time);
+                        traceTemp.y.push(dataAsset[key].Temperature);
+                    }
+                    if (Object.keys(dataAsset[key])[0] == 'Humidity'){
+                        traceHumidity.x.push(dataAsset[key]._time);
+                        traceHumidity.y.push(dataAsset[key].Humidity);
+                    }
+                    if (Object.keys(dataAsset[key])[0] == 'Engine_Rotation'){
+                        trace_Engine_Rotation.x.push(dataAsset[key]._time);
+                        trace_Engine_Rotation.y.push(dataAsset[key].Engine_Rotation);
+                    }
+
+                    if (Object.keys(dataAsset[key])[0] == 'Pressure'){
+                        trace_Pressure.x.push(dataAsset[key]._time);
+                        trace_Pressure.y.push(dataAsset[key].Pressure);
+                    }
+
+                    if (Object.keys(dataAsset[key])[0] == 'StatusCode'){
+                        trace_StatusCode.x.push(dataAsset[key]._time);
+                        trace_StatusCode.y.push(dataAsset[key].StatusCode);
+                    }
+                }
+
+                /* TEMPERATURA */
+                var chart_data_temp = [traceTemp];
+                var layout = {
+                title:'Temperatura'
+                };
+
+                Plotly.newPlot('divChart_Temperature', chart_data_temp, layout);
+
+                /* HUMIDADE */
+                var chart_data_Humidade = [traceHumidity];
+                var layout = {
+                    title:'Humidade'
+                };
+                Plotly.newPlot('divChart_Humity', chart_data_Humidade, layout);
+
+                /* Engine_Rotationidity */
+                var chart_Engine_Rotation = [trace_Engine_Rotation];
+                var layout = {
+                    title:'Rotação do Motor'
+                };
+                Plotly.newPlot('divChart_Engine_Rotationidity', chart_Engine_Rotation, layout);
+
+                 /* Pressure */
+                var chart_Pressure = [trace_Pressure];
+                var layout = {
+                    title:'Pressão'
+                };
+                Plotly.newPlot('divChart_Pressure', chart_Pressure, layout);
+
+                /* StatusCode */
+                var chart_StatusCode = [trace_StatusCode];
+                var layout = {
+                    title:'StatusCode'
+                };
+                Plotly.newPlot('divChart_StatusCode', chart_StatusCode, layout);
+
+                /* Geral */
+
+                var data_Geral = [traceTemp, traceHumidity,trace_Pressure,trace_StatusCode];
+                var layout = {
+                    title:'Geral'
+                };
+                Plotly.newPlot('divChart_Geral', data_Geral, layout);
+
+
+            }
+
+            setInterval(function(){ getAsset(); }, 15 * 1000);
+
+            function getAsset(){
+                    
+               
+                buildChart(dataSensor);
+                           
+            }
+
+            $(document).ready(function(){
+
+                getAsset();
+    
+    });
+    </script>
+
+</head>
+<body>
+        <div id="_mscontent"><script src="https://static.eu1.mindsphere.io/osbar/v4/js/main.min.js"></script>
+
+            <script>_msb.init({title: "Mind Talking",appId: "_mscontent"});</script>
+        <!-- <input id="btnGet" type="button" value="Atualizar Dados" /> -->
+        <div id="resultado"></div>
+        <div id="resultado2"></div>
+        <div id="divChart_Geral"></div>
+        <div id="divChart_Temperature"></div>
+        <div id="divChart_Humity"></div>
+        <div id="divChart_Engine_Rotationidity"></div>
+        <div id="divChart_Pressure"></div>
+        <div id="divChart_StatusCode"></div>
+        <input id="hdnToken" type="hidden" value="teste" />
+
+        </div>
+        
+            
+</body>
+
