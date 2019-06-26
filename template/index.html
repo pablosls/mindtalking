@@ -171,9 +171,9 @@
                                         <div id="system-load" class="easy-pie-chart">
                                             <h4><b class="percent"></b></h4>
                                         </div>
-                                        <p>
-                                            <span class="number">Disponibilidade</span>
-                                        </p>
+
+                                        <span class="number">Disponibilidade</span>
+
                                     </div>
                                 </div>
                                 <div class="col-md-4">
@@ -183,9 +183,9 @@
                                         <div id="system-load2" class="easy-pie-chart">
                                             <h4><b class="percent"></b></h4>
                                         </div>
-                                        <p>
-                                            <span class="number">Confiabilidade</span>
-                                        </p>
+
+                                        <span class="number">Confiabilidade</span>
+
                                     </div>
                                 </div>
                                 <!-- <div class="col-md-3">
@@ -206,7 +206,7 @@
                                         <span class="icon"><i class="fa fa-clock-o"></i></span>
                                         <p>
                                             <b id="mean_time_to_repair" class="number"></b>
-                                            <span class="title">Manutenção</span>
+                                            <span class="title">Tempo médio para reparos</span>
                                         </p>
                                     </div>
                                     <div class="metric">
@@ -214,7 +214,7 @@
                                         <span class="icon"><i class="fa fa-clock-o"></i></span>
                                         <p>
                                             <b id="mean_time_between_failures" class="number"></b>
-                                            <span class="title">Acionamento sup.</span>
+                                            <span class="title">Tempo médio entre falhas</span>
                                         </p>
                                     </div>
                                 </div>
@@ -298,91 +298,7 @@
         }
 
         $(function() {
-            var data, options;
 
-            // headline charts
-            data = {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                series: [
-                    [23, 29, 24, 40, 25, 24, 35],
-                    [14, 25, 18, 34, 29, 38, 44],
-                ]
-            };
-
-            options = {
-                height: 300,
-                showArea: true,
-                showLine: false,
-                showPoint: false,
-                fullWidth: true,
-                axisX: {
-                    showGrid: false
-                },
-                lineSmooth: false,
-            };
-
-            new Chartist.Line('#headline-chart', data, options);
-
-
-            // visits trend charts
-            data = {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                series: [{
-                    name: 'series-real',
-                    data: [200, 380, 350, 320, 410, 450, 570, 400, 555, 620, 750, 900],
-                }, {
-                    name: 'series-projection',
-                    data: [240, 350, 360, 380, 400, 450, 480, 523, 555, 600, 700, 800],
-                }]
-            };
-
-            options = {
-                fullWidth: true,
-                lineSmooth: false,
-                height: "270px",
-                low: 0,
-                high: 'auto',
-                series: {
-                    'series-projection': {
-                        showArea: true,
-                        showPoint: false,
-                        showLine: false
-                    },
-                },
-                axisX: {
-                    showGrid: false,
-
-                },
-                axisY: {
-                    showGrid: false,
-                    onlyInteger: true,
-                    offset: 0,
-                },
-                chartPadding: {
-                    left: 20,
-                    right: 20
-                }
-            };
-
-            new Chartist.Line('#visits-trends-chart', data, options);
-
-
-            // visits chart
-            data = {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                series: [
-                    [6384, 6342, 5437, 2764, 3958, 5068, 7654]
-                ]
-            };
-
-            options = {
-                height: 300,
-                axisX: {
-                    showGrid: false
-                },
-            };
-
-            new Chartist.Bar('#visits-chart', data, options);
 
 
             // real-time pie chart
@@ -472,7 +388,7 @@
                 var MTBF = Math.round(Number(somaHorasBomFunc / (numParadasManutencao + 1)));
                 var taxaFalhas = Math.round(1 / MTBF);
                 var MTTR = Math.round(Number(somaHorasTempoReparo / numIntervencoes * tempoTotalReparos));
-                var disponibilidade = Number(MTBF / (MTBF + MTTR) * 100);
+                var disponibilidade = Math.round(Number((MTBF / (MTBF + MTTR) * 100)));
                 var confiabilidade = Math.round(Number(Math.pow(Math.E, taxaFalhas * status.length * -10) * 100));
 
                 var dados = {
