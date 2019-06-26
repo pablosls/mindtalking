@@ -22,7 +22,22 @@
     <link rel="apple-touch-icon" sizes="76x76" href="assets/img/apple-icon.png">
     <link rel="icon" type="image/png" sizes="96x96" href="assets/img/mindtalking.png">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
-
+    <script src="assets/vendor/jquery/jquery.min.js"></script>
+    <script src="assets/vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/vendor/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="assets/vendor/chartist/js/chartist.min.js"></script>
+    <script src="assets/scripts/klorofil-common.js"></script>
+    <script src="../public/scripts/jquery.min.js"></script>
+    <script src="../public/scripts/plotly.min.js"></script>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script src="data.js"></script>
+    <script src="https://static.eu1.mindsphere.io/osbar/v4/js/main.min.js"></script>
+    <script>
+        _msb.init({
+            title: "Mind Talking",
+            appId: "_mscontent"
+        });
+    </script>
 
 
 </head>
@@ -397,14 +412,14 @@
             setInterval(function() {
                 var randomVal;
                 randomVal = getRandomInt(0, 100);
-                var dados = getEstatisticas();
+                var data = getEstatisticas(dataSensor);
 
-                sysLoad.data('easyPieChart').update(dados.disponibilidade);
-                sysLoad.find('.percent').text(dados.disponibilidade);
-                sysLoad2.data('easyPieChart').update(randomVal);
-                sysLoad2.find('.percent').text(randomVal);
-                document.getElementById('mean_time_to_repair').innerHTML = dados.MTTR;
-                document.getElementById('mean_time_to_repair').innerHTML = dados.MTBF;
+                sysLoad.data('easyPieChart').update(data.disponibilidade);
+                sysLoad.find('.percent').text(data.disponibilidade);
+                sysLoad2.data('easyPieChart').update(data.confiabilidade);
+                sysLoad2.find('.percent').text(data.confiabilidade);
+                document.getElementById('mean_time_to_repair').innerHTML = " MTTR    	" + data.MTTR + " Horas";
+                document.getElementById('mean_time_between_failures').innerHTML = " MTBF   	 " + data.MTBF + " Horas";
 
             }, updateInterval);
 
@@ -412,55 +427,68 @@
                 return Math.floor(Math.random() * (max - min + 1)) + min;
             }
 
-            function getEstatisticas() {
+            function getEstatisticas(dataAsset) {
 
-                var a = getRandomInt(250, 500);
-                var b = getRandomInt(15, 45);
-                var c = getRandomInt(40, 80);
-                var somaHorasBomFunc = a;
-                var numParadasManutencao = b;
-                var avgTimeFailures = c;
+                var somaHorasBomFunc = 0;
+                var numParadasManutencao = 0;
+                var avgTimeFailures = 0;
 
-                var somaHorasTempoReparo = a;
-                var numIntervencoes = b;
-                var tempoTotalReparos = c;
+                var somaHorasTempoReparo = 0;
+                var numIntervencoes = 0;
+                var tempoTotalReparos = 0;
 
-                var MTBF = Number(somaHorasBomFunc / (numParadasManutencao * avgTimeFailures));
-                var MTTR = Number(somaHorasTempoReparo / (numIntervencoes * tempoTotalReparos));
+                var status = [];
+                var tam = 0;
+
+                for (var key in dataAsset) {
+
+                    if (Object.keys(dataAsset[key])[0] == 'StatusCode') {
+                        status.push(dataAsset[key].StatusCode);
+                        tam++;
+                    }
+
+                }
+                for (var i = 0; i < tam; i++) {
+                    if (i != 0 && status[i] != status[i - 1] & status[i] != 1) {
+                        numIntervencoes++;
+                    }
+                    if (status[i] == 1) {
+                        somaHorasBomFunc++;
+                    }
+                    if (status[i] == 3) {
+                        tempoTotalReparos++;
+                        somaHorasTempoReparo++;
+                    }
+                    if (status[i] != 1 && status[i] != 2) {
+                        avgTimeFailures++;
+                    }
+                    if (status[i] == 3 && (status[i - 1] == 0 || status[i - 1] == 2)) {
+                        numParadasManutencao++;
+                    }
+
+
+                }
+
+                var MTBF = Math.round(Number(somaHorasBomFunc / (numParadasManutencao + 1)));
+                var taxaFalhas = Math.round(1 / MTBF);
+                var MTTR = Math.round(Number(somaHorasTempoReparo / numIntervencoes * tempoTotalReparos));
                 var disponibilidade = Number(MTBF / (MTBF + MTTR) * 100);
+                var confiabilidade = Math.round(Number(Math.pow(Math.E, taxaFalhas * status.length * -10) * 100));
 
                 var dados = {
                     MTBF,
                     MTTR,
-                    disponibilidade
+                    disponibilidade,
+                    confiabilidade
                 }
+
 
                 return dados;
             }
 
+
+
         });
-        // var ctx = document.getElementById('meuChart').getContext('2d');
-        // var chart = new Chart(ctx, {
-        //     // The type of chart we want to create
-        //     type: 'doughnut',
-
-        //     // The data for our dataset
-        //     data: {
-        //         // labels: ["Fora de Serviço", "Funcionando", "Parada"],
-        //         datasets: [{
-        //             label: "My First dataset",
-        //             backgroundColor: ['rgb(0, 99, 132)', 'green', 'red', 'yellow', 'orange'],
-        //             borderColor: '#fff',
-        //             data: [5, 10, 5],
-        //         }]
-        //     },
-
-        //     // Configuration options go here
-        //     options: {
-        //         circumference: 1 * Math.PI,
-        //         rotation: 1 * Math.PI
-        //     }
-        // });
 
         var ctx = document.getElementById('confiability').getContext('2d');
         var chart = new Chart(ctx, {
@@ -476,7 +504,24 @@
                 rotation: 1 * Math.PI
             }
         });
+
+        setInterval(function() {
+            getAsset();
+        }, 1000);
+
+        function getAsset() {
+
+
+            getEstatisticas(dataSensor);
+
+        }
+
+        $(document).ready(function() {
+
+            getAsset();
+
+        });
     </script>
 </body>
 
-</html>''
+</html>
